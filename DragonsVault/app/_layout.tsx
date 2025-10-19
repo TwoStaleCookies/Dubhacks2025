@@ -1,25 +1,50 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+// app/_layout.tsx
+import { Stack, useRouter, useSegments } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+function Gate({ children }: { children: React.ReactNode }) {
+  const { user, role, loading } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
 
-export const unstable_settings = {
-  anchor: 'tabs',
-};
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    if (loading) return;
 
+    const atAuth = segments[0] === "auth";
+    const atChooseRole = atAuth && segments[1] === "choose-role";
+
+    if (!user && !atAuth) {
+      router.replace("/auth/login");
+      return;
+    }
+    if (user && !role && !atChooseRole) {
+      router.replace("/auth/choose-role");
+      return;
+    }
+    if (user && role && atAuth) {
+      router.replace(role === "parent" ? "/(parent)/dashboard" : "/(tabs)");
+    }
+  }, [loading, user, role, segments]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  return <>{children}</>;
+}
+
+export default function Root() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(parent)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <Gate>
+        <Stack screenOptions={{ headerShown: false }} />
+      </Gate>
+    </AuthProvider>
   );
 }
