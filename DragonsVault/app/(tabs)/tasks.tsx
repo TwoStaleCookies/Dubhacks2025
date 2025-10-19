@@ -19,23 +19,11 @@ export default function TabTwoScreen() {
     { id: '3', text: 'Placeholder task 3' },
   ]);
 
-  const totalMoney = tasks.length * 50;
-  const totalXP = tasks.length * 10;
+  const totalMoney = 0;
+  const totalXP = 0;
 
   return (
-    <ParallaxScrollView
-      // use a solid blue header background
-      headerBackgroundColor={{ light: '#0000FF', dark: '#0000FF' }}
-      headerImage={
-        <IconSymbol
-          size={78} // half of 155 -> ~78
-          color="#ffffff"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
-      // reduce header height via prop recognized by ParallaxScrollView
-      headerHeight={60}>
+    <>
       <ThemedView style={styles.titleContainer}>
         <ThemedText
           type="title"
@@ -48,7 +36,7 @@ export default function TabTwoScreen() {
 
       {/* Secondary stats header right below blue header */}
       <ThemedView style={styles.statsBar}>
-        <ThemedText style={styles.statsText}>Total ${totalMoney}   XP {totalXP}</ThemedText>
+        <ThemedText style={styles.statsText}>Total: {totalMoney}$   XP: {totalXP} / 100</ThemedText>
       </ThemedView>
 
       {/* Centered Tasks title */}
@@ -60,7 +48,7 @@ export default function TabTwoScreen() {
       <ThemedView style={styles.listContainer}>
         <TasksList tasks={tasks} />
       </ThemedView>
-    </ParallaxScrollView>
+  </>
   );
 }
 
