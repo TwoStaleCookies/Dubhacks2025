@@ -1,10 +1,9 @@
 // geminiClient.ts (works in Expo & React Native)
+import 'dotenv/config';
 
-const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-
-if (!GEMINI_API_KEY) {
-  throw new Error("EXPO_PUBLIC_GEMINI_API_KEY not set");
-}
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+console.log("Gemini API Key:", GEMINI_API_KEY);
+if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not set");
 
 /**
  * Send a prompt to Gemini and return extracted assistant text.
