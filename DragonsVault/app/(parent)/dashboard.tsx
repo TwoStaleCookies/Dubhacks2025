@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth} from "@/providers/AuthProvider";
-import { addCoins, ensureUserDoc, setTasks as setUserTasks } from "@/lib/firestoreUser";
+import { addCoins, ensureUserDoc, setTasks as setUserTasks, getUserData } from "@/lib/firestoreUser";
 import {
   View,
   Text,
@@ -30,6 +30,30 @@ export default function Dashboard() {
   const [rewardInput, setRewardInput] = useState("");
   const [notes, setNotes] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Load tasks from Firestore when dashboard mounts / uid changes
+  useEffect(() => {
+    let mounted = true;
+    async function loadTasks() {
+      if (!uid) return;
+      try {
+        const data = await getUserData(uid);
+        const dbTasks = (data.tasks ?? []).map((t: any) => {
+          const id = t.id ?? t.name ?? Math.random().toString(36).slice(2);
+          const title = t.title ?? t.name ?? String(t.id ?? id);
+          const rewardInput = t.rewardInput != null ? String(t.rewardInput) : (typeof t.value === 'number' ? (t.value / 100).toFixed(2) : undefined);
+          const notes = t.notes ?? undefined;
+          const createdAt = typeof t.createdAt === 'number' ? t.createdAt : Date.now();
+          return { id, title, rewardInput, notes, createdAt } as Task;
+        });
+        if (mounted) setTasks(dbTasks);
+      } catch (err) {
+        console.error('Failed to load tasks for user', uid, err);
+      }
+    }
+    loadTasks();
+    return () => { mounted = false };
+  }, [uid]);
 
   async function addTask() {
     const t = title.trim();
