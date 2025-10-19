@@ -14,6 +14,8 @@ import {
 import XPBar from '../../components/XP-bar';
 import SlidingPanel from '../../components/sidebar';
 import Bar from '../../components/hunger-happiness';
+import { db } from '@/firebase/firebaseConfig';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
