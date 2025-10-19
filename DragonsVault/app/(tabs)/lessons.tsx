@@ -166,12 +166,12 @@ export default function LessonsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#8bd7ecff' },
   headerImage: { width: '100%', height: 140 },
   list: { padding: 16 },
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f6f8fa', padding: 12, borderRadius: 8, marginBottom: 12 },
   cardPressed: { opacity: 0.85 },
-  thumbnail: { width: 56, height: 56, borderRadius: 8, marginRight: 12 },
+  thumbnail: { width: 56, height: 56, borderRadius: 200, marginRight: 12 },
   cardLeft: { marginRight: 8 },
   cardBody: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: '600', marginBottom: 2 },

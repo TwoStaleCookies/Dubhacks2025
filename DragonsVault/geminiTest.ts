@@ -1,34 +1,43 @@
-import * as dotenv from 'dotenv';
-import { GoogleGenAI, type GenerateContentResponse } from '@google/genai';
+// geminiClient.ts (works in Expo & React Native)
 
-dotenv.config();
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
-function getClient() {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY not set');
-  return new GoogleGenAI({ apiKey: key });
+if (!GEMINI_API_KEY) {
+  throw new Error("EXPO_PUBLIC_GEMINI_API_KEY not set");
 }
 
+/**
+ * Send a prompt to Gemini and return extracted assistant text.
+ * Same signature and behavior as the Node version.
+ */
 export async function generateTextFromPrompt(
   prompt: string,
-  model = 'gemini-2.5-flash'
+  model = "gemini-2.0-flash"
 ): Promise<string> {
-  const ai = getClient();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
-  const response: GenerateContentResponse = await ai.models.generateContent({
-    model,
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+  const body = {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
 
-  const asAny = response as any;
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini API error ${response.status}: ${errText}`);
+  }
+
+  const data = await response.json();
+
+  // Extract the text output safely
   const text =
-    (asAny?.candidates?.[0]?.content?.text as string | undefined) ??
-    (asAny?.output?.[0]?.content?.text as string | undefined) ??
-    (typeof asAny?.response?.text === 'function'
-      ? await asAny.response.text()
-      : asAny?.response?.text) ??
-    (asAny?.text as string | undefined) ??
-    JSON.stringify(response);
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+    data?.output_text ??
+    JSON.stringify(data);
 
   return String(text);
 }
