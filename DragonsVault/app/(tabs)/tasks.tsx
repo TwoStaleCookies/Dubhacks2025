@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { getUserData } from '@/lib/firestoreUser';
 import { useAuth } from '@/providers/AuthProvider';
 
-type Task = { id: string; text: string };
+type Task = { id: string; text: string; rewardInput?: string };
 
 export default function TabTwoScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -30,7 +30,17 @@ export default function TabTwoScreen() {
       try {
         const data = await getUserData(uid);
         // expect data.tasks to be Task[] or similar; map to text-only Task if needed
-        const userTasks = (data.tasks ?? []).map((t: any) => ({ id: t.id, text: t.title ?? t.name ?? String(t) }));
+        const userTasks = (data.tasks ?? []).map((t: any) => {
+          // derive a displayable reward string. Firestore tasks may use `rewardInput` (string)
+          // or `value` (number, cents) depending on who wrote them.
+          let rewardStr: string | undefined;
+          if (t == null) rewardStr = undefined;
+          else if (t.rewardInput != null) rewardStr = String(t.rewardInput);
+          else if (typeof t.value === 'number') rewardStr = (t.value / 100).toFixed(2);
+          else rewardStr = undefined;
+
+          return { id: t.id ?? t.name ?? String(Math.random()), text: t.title ?? t.name ?? String(t), rewardInput: rewardStr };
+        });
         if (mounted) setTasks(userTasks);
       } catch (err) {
         console.error('Failed to load user tasks', err);
@@ -68,13 +78,13 @@ export default function TabTwoScreen() {
       <ThemedView style={styles.card}>
         <FlatList
           data={tasks}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: Task) => item.id}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: Task }) => (
             <View style={styles.row}>
               <ThemedText style={styles.taskText}>{item.text}</ThemedText>
               <View style={styles.badge}>
-                <ThemedText style={styles.badgeText}>+50$</ThemedText>
+                <ThemedText style={styles.badgeText}>{item.rewardInput ? `+$${item.rewardInput}` : '+$0.00'}</ThemedText>
               </View>
             </View>
           )}
@@ -176,10 +186,10 @@ function TasksList({ tasks }: { tasks: Task[] }) {
         data={tasks}
         keyExtractor={(item: Task) => item.id}
         renderItem={({ item }: { item: Task }) => (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
             <ThemedText>{item.text}</ThemedText>
-            {/* static money label */}
-            <ThemedText style={{ fontWeight: '600' }}>{50}</ThemedText>
+            {/* dynamic money label from task */}
+            <ThemedText style={{ fontWeight: '600' }}>{item.rewardInput ? `$${item.rewardInput}` : '$0.00'}</ThemedText>
           </View>
         )}
       />
