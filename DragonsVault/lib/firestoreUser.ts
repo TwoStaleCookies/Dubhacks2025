@@ -3,6 +3,7 @@ import {
   doc,
   setDoc,
   updateDoc,
+  increment,
   getDoc,
   arrayUnion,
   arrayRemove,
@@ -34,9 +35,18 @@ export async function ensureUserDoc(uid: string) {
  * Set the user's coin balance to a specific value.
  * This replaces the previous increment-based behaviour.
  */
-export async function addCoins(uid: string, value: number) {
+export async function setCoins(uid: string, value: number) {
   const ref = doc(db, "users", uid);
   await updateDoc(ref, { coins: value });
+}
+
+/**
+ * Add or subtract from the user's coin balance.
+ * Pass a positive number to add, negative to subtract.
+ */
+export async function addCoins(uid: string, delta: number) {
+  const ref = doc(db, "users", uid);
+  await updateDoc(ref, { coins: increment(delta) });
 }
 
 /**
