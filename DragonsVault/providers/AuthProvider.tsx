@@ -16,9 +16,7 @@ type AuthContextShape = {
   user: User | null;
   role: Role;
   loading: boolean;
-  /** Set the in-memory role for this session only */
   setRole: (r: Exclude<Role, null>) => void;
-  /** Clear the role (e.g., to re-pick) */
   clearRole: () => void;
 };
 
@@ -38,10 +36,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for sign-in/sign-out. Each sign-in starts with no role.
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setRoleState(null); // fresh role every time you (re)authenticate
+      setRoleState(null);
       setLoading(false);
     });
     return unsub;
