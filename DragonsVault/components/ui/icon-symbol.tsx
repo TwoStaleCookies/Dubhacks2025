@@ -21,6 +21,8 @@ const MAPPING = {
   'book.fill': 'menu-book',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'egg.fill': 'egg',
+  'task.fill': 'checklist'
 } as IconMapping;
 
 /**

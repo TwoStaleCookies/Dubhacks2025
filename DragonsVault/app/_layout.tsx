@@ -9,6 +9,7 @@ function Gate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
 
+
   useEffect(() => {
     if (loading) return;
 
