@@ -1,9 +1,4 @@
-import { Redirect } from "expo-router";
-
-export default function IndexGate() {
-  let role = "kid"; 
-
-  return role === "parent"
-    ? <Redirect href="/(parent)/dashboard" />
-    : <Redirect href="/(tabs)" />; // or "/(tabs)/index"
+// app/index.tsx
+export default function Index() {
+  return null; // Gate will immediately route based on auth/role
 }

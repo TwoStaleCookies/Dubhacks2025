@@ -5,6 +5,8 @@ import DragonBlob from '../../components/Dragon';
 import XPBar from '../../components/XP-bar';
 import SlidingPanel from '../../components/sidebar';
 import Bar from '../../components/hunger-happiness';
+import { db } from '@/firebase/firebaseConfig';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 export default function DragonScreen() {
   const [xp, setXP] = useState<number>(0);
@@ -44,6 +46,16 @@ export default function DragonScreen() {
       setHunger(0);
       setHappiness(0);
     }
+    (async () => {
+      try {
+        const ref = doc(db, "test", "ping");
+        await setDoc(ref, { ok: true, time: Date.now() });
+        const snap = await getDoc(ref);
+        console.log("🔥 Firebase connected! Data:", snap.data());
+      } catch (err) {
+        console.error("💀 Firebase NOT connected:", err);
+      }
+    })();
   }, [hunger, happiness]);
 
   const feedDragon = (value: number) => {
