@@ -1,98 +1,162 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// app/(tabs)/DragonScreen.tsx
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import DragonBlob from '../../components/Dragon';
+import XPBar from '../../components/XP-bar';
+import SlidingPanel from '../../components/sidebar';
+import Bar from '../../components/hunger-happiness';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function DragonScreen() {
+  const [xp, setXP] = useState<number>(0);
+  const [hunger, setHunger] = useState<number>(0);
+  const [happiness, setHappiness] = useState<number>(0);
 
-export default function HomeScreen() {
+  const [foodPanelVisible, setFoodPanelVisible] = useState<boolean>(false);
+  const [activitiesPanelVisible, setActivitiesPanelVisible] = useState<boolean>(false);
+
+  const toggleFoodPanel = () => {
+    setFoodPanelVisible((prev) => !prev);
+    setActivitiesPanelVisible(false); // close activities panel
+  };
+
+  const toggleActivitiesPanel = () => {
+    setActivitiesPanelVisible((prev) => !prev);
+    setFoodPanelVisible(false); // close food panel
+  };
+
+  const foods = [
+    { name: 'Apple', value: 10 },
+    { name: 'Gold Coin', value: 20 },
+    { name: 'Treasure Chest', value: 40 },
+  ];
+
+  const activities = [
+    { name: 'Play', value: 10 },
+    { name: 'Cuddle', value: 15 },
+    { name: 'Dance', value: 25 },
+  ];
+
+  // Whenever hunger and happiness are both full (>=100), increase XP by 2
+  useEffect(() => {
+    if (hunger >= 100 && happiness >= 100) {
+      setXP((prev) => prev + 2);
+      // Optionally reset hunger and happiness
+      setHunger(0);
+      setHappiness(0);
+    }
+  }, [hunger, happiness]);
+
+  const feedDragon = (value: number) => {
+    setHunger((prev) => Math.min(prev + value, 100));
+  };
+
+  const doActivity = (value: number) => {
+    setHappiness((prev) => Math.min(prev + value, 100));
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      <View style={{ height: 70 }} />
+      {/* XP Bar at top */}
+      <XPBar xp={xp} />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Hunger & Happiness Bars */}
+      <View style={styles.barsContainer}>
+        <Bar label="Hunger" value={hunger} color="#FF6B6B" />
+        <Bar label="Happiness" value={happiness} color="#FFD93D" />
+      </View>
+
+      <View style={{ height: 70 }} />
+
+      {/* Dragon in center */}
+      <View style={styles.mainArea}>
+        <DragonBlob xp={xp} />
+      </View>
+
+      {/* Bottom Tabs */}
+      <View style={styles.panelWrapper}>
+        {/* Sliding Panel */}
+        <SlidingPanel visible={foodPanelVisible} height={250}>
+          {foods.map((food) => (
+            <TouchableOpacity
+              key={food.name}
+              style={styles.actionButton}
+              onPress={() => feedDragon(food.value)}
+            >
+              <Text>{food.name} (+{food.value} Hunger)</Text>
+            </TouchableOpacity>
+          ))}
+        </SlidingPanel>
+
+        <SlidingPanel visible={activitiesPanelVisible} height={250}>
+          {activities.map((activity) => (
+            <TouchableOpacity
+              key={activity.name}
+              style={styles.actionButton}
+              onPress={() => doActivity(activity.value)}
+            >
+              <Text>{activity.name} (+{activity.value} Happiness)</Text>
+            </TouchableOpacity>
+          ))}
+        </SlidingPanel>
+
+        {/* Tabs always on top of panels */}
+        <View style={styles.bottomTabs}>
+          <TouchableOpacity style={styles.tabButton} onPress={toggleFoodPanel}>
+            <Text>Food</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.tabButton} onPress={toggleActivitiesPanel}>
+            <Text>Activities</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+  </View>
+
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f8ff',
+  },
+  mainArea: {
+    flex: 1,
+    marginBottom: 12,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  barsContainer: {
+    marginBottom: 16,
+    marginTop: 12,
+    paddingHorizontal: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  panelWrapper: {
     position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    alignItems: 'center',
+  },
+  bottomTabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 8,
+    width: '90%',
+    zIndex: 10, // make sure tabs are above the panel
+  },
+  tabButton: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    elevation: 3,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  actionButton: {
+    backgroundColor: '#f0f8ff',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 6,
   },
 });
