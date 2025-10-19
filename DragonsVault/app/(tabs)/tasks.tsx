@@ -19,6 +19,7 @@ export default function TabTwoScreen() {
   const uid = user?.uid;
 
   const [loading, setLoading] = useState(false);
+  const [coins, setCoins] = useState<number>(0);
   const totalMoney = 0;
   const totalXP = 0;
 
@@ -36,12 +37,15 @@ export default function TabTwoScreen() {
           let rewardStr: string | undefined;
           if (t == null) rewardStr = undefined;
           else if (t.rewardInput != null) rewardStr = String(t.rewardInput);
-          else if (typeof t.value === 'number') rewardStr = (t.value / 100).toFixed(2);
+          else if (typeof t.value === 'number') rewardStr = t.value;
           else rewardStr = undefined;
 
           return { id: t.id ?? t.name ?? String(Math.random()), text: t.title ?? t.name ?? String(t), rewardInput: rewardStr };
         });
-        if (mounted) setTasks(userTasks);
+        if (mounted) {
+          setTasks(userTasks);
+          setCoins(data.coins ?? 0);
+        }
       } catch (err) {
         console.error('Failed to load user tasks', err);
       } finally {
@@ -62,7 +66,7 @@ export default function TabTwoScreen() {
       {/* Stats strip */}
       <ThemedView style={styles.statsBar}>
         <ThemedText style={styles.statsText}>
-          Total: <ThemedText style={styles.statsEmph}>{totalMoney}$</ThemedText>{"  "}
+          Total: <ThemedText style={styles.statsEmph}>${coins}</ThemedText>{"  "}
           XP: <ThemedText style={styles.statsEmph}>{totalXP}</ThemedText> / 100
         </ThemedText>
       </ThemedView>
