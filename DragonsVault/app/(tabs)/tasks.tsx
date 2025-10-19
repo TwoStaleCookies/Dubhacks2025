@@ -1,102 +1,143 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, View, FlatList, TextInput, Pressable } from 'react-native';
-import { useState } from 'react';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { StyleSheet, View, FlatList } from "react-native";
+import { useState } from "react";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Fonts } from "@/constants/theme";
 
 type Task = { id: string; text: string };
 
 export default function TabTwoScreen() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', text: 'Placeholder task 1' },
-    { id: '2', text: 'Placeholder task 2' },
-    { id: '3', text: 'Placeholder task 3' },
+  const [tasks] = useState<Task[]>([
+    { id: "1", text: "Put your dishes in the dishwasher" },
+    { id: "2", text: "Pick up your toys" },
+    { id: "3", text: "Do your homework" },
   ]);
 
   const totalMoney = 0;
   const totalXP = 0;
 
   return (
-    <>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          {/* small spacer to push title below header visually */}
+    <View style={styles.screen}>
+      {/* Title spacer under header */}
+      <ThemedView style={styles.topSpacer}>
+        <ThemedText type="title" style={{ fontFamily: Fonts.rounded }} />
+      </ThemedView>
+
+      {/* Stats strip */}
+      <ThemedView style={styles.statsBar}>
+        <ThemedText style={styles.statsText}>
+          Total: <ThemedText style={styles.statsEmph}>{totalMoney}$</ThemedText>{"  "}
+          XP: <ThemedText style={styles.statsEmph}>{totalXP}</ThemedText> / 100
         </ThemedText>
       </ThemedView>
 
-      {/* Secondary stats header right below blue header */}
-      <ThemedView style={styles.statsBar}>
-        <ThemedText style={styles.statsText}>Total: {totalMoney}$   XP: {totalXP} / 100</ThemedText>
-      </ThemedView>
-
-      {/* Centered Tasks title */}
+      {/* Page title */}
       <View style={styles.centerTitleContainer}>
-        <ThemedText type="title" style={{ fontFamily: Fonts.rounded }}>Tasks</ThemedText>
+        <ThemedText type="title" style={[{ fontFamily: Fonts.rounded }, styles.title]}>
+          Tasks
+        </ThemedText>
       </View>
 
-      {/* Editable list of objectives/tasks */}
-      <ThemedView style={styles.listContainer}>
-        <TasksList tasks={tasks} />
+      {/* Card container */}
+      <ThemedView style={styles.card}>
+        <FlatList
+          data={tasks}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          renderItem={({ item }) => (
+            <View style={styles.row}>
+              <ThemedText style={styles.taskText}>{item.text}</ThemedText>
+              <View style={styles.badge}>
+                <ThemedText style={styles.badgeText}>+50$</ThemedText>
+              </View>
+            </View>
+          )}
+          contentContainerStyle={{ paddingVertical: 4 }}
+        />
       </ThemedView>
-  </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  screen: {
+    flex: 1,
+    backgroundColor: "#f5f9ff", // soft off-white background
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  centerTitleContainer: {
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  listContainer: {
-    paddingHorizontal: 12,
-    paddingBottom: 24,
+  topSpacer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
   },
   statsBar: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    alignItems: 'flex-end',
+    backgroundColor: "#ffffff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "flex-end",
+    borderBottomWidth: 1,
+    borderBottomColor: "#cfd6e0", // darker divider
   },
   statsText: {
-    fontWeight: '600',
+    fontWeight: "600",
+    color: "#000", // solid black
+  },
+  statsEmph: {
+    fontWeight: "800",
+    color: "#0057ff", // accent blue for totals
+  },
+  centerTitleContainer: {
+    alignItems: "center",
+    marginVertical: 14,
+  },
+  /** 🔹 Title style — now black */
+  title: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#000000", // solid black
+    letterSpacing: 0.3,
+    textAlign: "center",
+  },
+  card: {
+    marginHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#e0e6ef",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#d8dee9",
+    marginHorizontal: 10,
+  },
+  row: {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  taskText: {
+    fontSize: 17,
+    color: "#000", // deep black for visibility
+    flexShrink: 1,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "#e7f1ff",
+    borderWidth: 1,
+    borderColor: "#b3d1ff",
+  },
+  badgeText: {
+    fontWeight: "700",
+    color: "#003cbe",
   },
 });
-
-// Small inline component for task list
-function TasksList({ tasks }: { tasks: Task[] }) {
-  return (
-    <View>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item: Task) => item.id}
-        renderItem={({ item }: { item: Task }) => (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
-            <ThemedText>{item.text}</ThemedText>
-            {/* static money label */}
-            <ThemedText style={{ fontWeight: '600' }}>50$</ThemedText>
-          </View>
-        )}
-      />
-    </View>
-  );
-}
