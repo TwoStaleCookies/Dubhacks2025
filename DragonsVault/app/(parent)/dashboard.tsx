@@ -125,6 +125,7 @@ export default function Dashboard() {
           value={title}
           onChangeText={setTitle}
           placeholder="Task title"
+          placeholderTextColor= "#444"
           style={[styles.input, { minHeight: 48 }]}
           returnKeyType="next"
         />
@@ -133,6 +134,7 @@ export default function Dashboard() {
           value={rewardInput}
           onChangeText={setRewardInput}
           placeholder="Money Reward"
+          placeholderTextColor= "#444"
           style={[styles.input, { minHeight: 48, minWidth: 100 }]}
           returnKeyType="next"
         />
@@ -141,6 +143,7 @@ export default function Dashboard() {
           value={notes}
           onChangeText={setNotes}
           placeholder="Notes / description"
+          placeholderTextColor= "#444"
           multiline
           style={[styles.input, { minHeight: 84, textAlignVertical: "top" }]}
         />
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
   h1: { fontSize: 20, fontWeight: "700" },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#383838ff",
     borderRadius: 10,
     padding: 12,
     backgroundColor: "white",
