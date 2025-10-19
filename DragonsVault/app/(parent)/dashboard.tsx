@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useAuth} from "@/providers/AuthProvider";
+import { addCoins, ensureUserDoc } from "@/lib/firestoreUser";
 import {
   View,
   Text,
@@ -10,43 +12,82 @@ import {
   Platform,
   Pressable,
 } from "react-native";
+import { green } from "react-native-reanimated/lib/typescript/Colors";
 
 type Task = {
   id: string;
   title: string;
   notes?: string;
   createdAt: number;
+  rewardInput?: string;
 };
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const uid = user?.uid;
+
   const [title, setTitle] = useState("");
+  const [rewardInput, setRewardInput] = useState("");
   const [notes, setNotes] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
 
   function addTask() {
     const t = title.trim();
+    const r = rewardInput.trim();
     const n = notes.trim();
     if (!t) return; // simple validation
-    setTasks((prev) => [
-      { id: Math.random().toString(36).slice(2), title: t, notes: n || undefined, createdAt: Date.now() },
+    setTasks((prev: Task[]) => [
+      { id: Math.random().toString(36).slice(2), title: t, rewardInput: r, notes: n || undefined, createdAt: Date.now() },
       ...prev,
     ]);
     setTitle("");
+    setRewardInput("");
     setNotes("");
   }
 
+  
   function removeTask(id: string) {
-    setTasks((prev) => prev.filter((x) => x.id !== id));
+    setTasks((prev: Task[]) => prev.filter((x: Task) => x.id !== id));
+  }
+
+  async function completeTask(id: string) {
+    // find and remove locally
+  const task = tasks.find((t: Task) => t.id === id);
+    setTasks((prev: Task[]) => prev.filter((x: Task) => x.id !== id));
+
+    if (!task) return;
+
+    // determine reward from the stored task
+    const raw = (task as any).reward ?? (task as any).rewardInput ?? "0";
+    const parsed = Number(String(raw).replace(/[^0-9.]/g, ""));
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      console.warn("Invalid reward value for task:", raw);
+      return;
+    }
+    const delta = Math.round(parsed); // store cents
+
+    try {
+      if (!uid) throw new Error("Not authenticated");
+      await ensureUserDoc(uid);
+      await addCoins(uid, delta);
+    } catch (err) {
+      console.error("Failed to add coins:", err);
+      // optionally restore the task or notify user
+    }
   }
 
   const renderItem = ({ item }: { item: Task }) => (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.rowTitle} numberOfLines={1}>{item.rewardInput}</Text>
         {!!item.notes && <Text style={styles.rowNotes} numberOfLines={3}>{item.notes}</Text>}
       </View>
       <Pressable onPress={() => removeTask(item.id)} style={styles.deleteBtn}>
         <Text style={{ color: "white", fontWeight: "700" }}>Delete</Text>
+      </Pressable>
+      <Pressable onPress={() => completeTask(item.id)} style={styles.completeBtn}>
+        <Text style={{ color: "white", fontWeight: "700" }}>Completed</Text>
       </Pressable>
     </View>
   );
@@ -70,6 +111,14 @@ export default function Dashboard() {
         />
 
         <TextInput
+          value={rewardInput}
+          onChangeText={setRewardInput}
+          placeholder="Money Reward"
+          style={[styles.input, { minHeight: 48, minWidth: 100 }]}
+          returnKeyType="next"
+        />
+
+        <TextInput
           value={notes}
           onChangeText={setNotes}
           placeholder="Notes / description"
@@ -83,7 +132,7 @@ export default function Dashboard() {
       {/* Scrolling list */}
       <FlatList
         data={tasks}
-        keyExtractor={(i) => i.id}
+  keyExtractor={(i: Task) => i.id}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.sep} />}
         ListEmptyComponent={<Text style={styles.empty}>No tasks yet</Text>}
@@ -126,6 +175,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     alignSelf: "flex-start",
+    flexDirection: "row",
+  },
+    completeBtn: {
+    backgroundColor: "rgba(4, 205, 4, 1)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+    flexDirection: "row",
   },
   sep: { height: 1, backgroundColor: "#eee" },
   empty: { textAlign: "center", padding: 24, color: "#666" },
