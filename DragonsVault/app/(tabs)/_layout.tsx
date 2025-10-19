@@ -15,30 +15,36 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarLabelStyle: { fontSize: 12 },
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
+    
+
+
       <Tabs.Screen
         name="tasks"
         options={{
           title: 'Tasks',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarLabelStyle: { fontSize: 20 },
+          tabBarIcon: ({ color }) => <IconSymbol size={0} name="tasks.fill" color={color} />,
         }}
       />
+
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarLabelStyle: { fontSize: 20 },
+          tabBarIcon: ({ color }) => <IconSymbol size={30} name="egg.fill" color={color} />,
+        }}
+      />
+      
       <Tabs.Screen
         name="lessons"
         options={{
           title: 'Lessons',
+          tabBarLabelStyle: { fontSize: 20 },
           tabBarIcon: ({ color, size }) => (
-            // use your IconSymbol mapping (expects "book.fill" to be mapped)
-            <IconSymbol name="book.fill" size={size ?? 28} color={color} />
-            // OR use an image instead:
-            // <Image source={require('@/assets/images/partial-react-logo.png')} style={{ width: size ?? 28, height: size ?? 28, tintColor: color }} />
+            <IconSymbol name="books.fill" size={0} color={color} />
           ),
         }}
       />
