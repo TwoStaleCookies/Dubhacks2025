@@ -1,7 +1,5 @@
 import { Image } from 'expo-image';
 import { Platform, StyleSheet, View, FlatList, TextInput, Pressable } from 'react-native';
-import { useState } from 'react';
-
 import { Collapsible } from '@/components/ui/collapsible';
 import { ExternalLink } from '@/components/external-link';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -9,16 +7,18 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
+import { useEffect, useState } from 'react';
+import { getUserData } from '@/lib/firestoreUser';
+import { useAuth } from '@/providers/AuthProvider';
 
 type Task = { id: string; text: string };
 
 export default function TabTwoScreen() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', text: 'Placeholder task 1' },
-    { id: '2', text: 'Placeholder task 2' },
-    { id: '3', text: 'Placeholder task 3' },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const { user } = useAuth();
+  const uid = user?.uid;
 
+  const [loading, setLoading] = useState(false);
   const totalMoney = 0;
   const totalXP = 0;
 
@@ -179,7 +179,7 @@ function TasksList({ tasks }: { tasks: Task[] }) {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
             <ThemedText>{item.text}</ThemedText>
             {/* static money label */}
-            <ThemedText style={{ fontWeight: '600' }}>50$</ThemedText>
+            <ThemedText style={{ fontWeight: '600' }}>{50}</ThemedText>
           </View>
         )}
       />
