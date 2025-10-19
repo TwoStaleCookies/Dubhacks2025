@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth} from "@/providers/AuthProvider";
-import { addCoins, ensureUserDoc } from "@/lib/firestoreUser";
+import { addCoins, ensureUserDoc, setTasks as setUserTasks } from "@/lib/firestoreUser";
 import {
   View,
   Text,
@@ -31,23 +31,39 @@ export default function Dashboard() {
   const [notes, setNotes] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  function addTask() {
+  async function addTask() {
     const t = title.trim();
     const r = rewardInput.trim();
     const n = notes.trim();
     if (!t) return; // simple validation
-    setTasks((prev: Task[]) => [
-      { id: Math.random().toString(36).slice(2), title: t, rewardInput: r, notes: n || undefined, createdAt: Date.now() },
-      ...prev,
-    ]);
+    const newTask: Task = { id: Math.random().toString(36).slice(2), title: t, rewardInput: r, notes: n || undefined, createdAt: Date.now() };
+    setTasks((prev: Task[]) => [newTask, ...prev]);
     setTitle("");
     setRewardInput("");
     setNotes("");
+
+    // persist to Firestore
+    try {
+      if (!uid) return;
+      await ensureUserDoc(uid);
+      // write the new tasks array to the user document
+      await setUserTasks(uid, [newTask, ...tasks] as any);
+    } catch (err) {
+      console.error("Failed to persist new task:", err);
+    }
   }
 
   
-  function removeTask(id: string) {
-    setTasks((prev: Task[]) => prev.filter((x: Task) => x.id !== id));
+  async function removeTask(id: string) {
+  const next = tasks.filter((x: Task) => x.id !== id);
+    setTasks(next);
+    try {
+      if (!uid) return;
+      await ensureUserDoc(uid);
+      await setUserTasks(uid, next as any);
+    } catch (err) {
+      console.error("Failed to persist removed task:", err);
+    }
   }
 
   async function completeTask(id: string) {
@@ -70,6 +86,9 @@ export default function Dashboard() {
       if (!uid) throw new Error("Not authenticated");
       await ensureUserDoc(uid);
       await addCoins(uid, delta);
+      // persist updated tasks after awarding coins
+  const remaining = tasks.filter((x: Task) => x.id !== id);
+      await setUserTasks(uid, remaining as any);
     } catch (err) {
       console.error("Failed to add coins:", err);
       // optionally restore the task or notify user
