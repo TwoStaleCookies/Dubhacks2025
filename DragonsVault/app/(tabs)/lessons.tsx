@@ -17,14 +17,17 @@ import { Stack, useRouter } from 'expo-router';
 
 const LESSONS = [
   { id: '1', title: 'Treasure Trades!', duration: '5m', subtitle: 'Spend your gold wisely' },
-  { id: '2', title: 'Gold Guarding?', duration: '8m', subtitle: 'Budget your coins' },
-  { id: '3', title: 'Hoarding!', duration: '6m', subtitle: 'Save gems, treasures, and loot' },
+  { id: '2', title: 'Quest Planning?', duration: '10m', subtitle: 'Plan your adventures and reach new heights' },
+  { id: '3', title: 'Gold Guarding!', duration: '8m', subtitle: 'Budget your coins' },
+  { id: '4', title: 'Hoarding?', duration: '6m', subtitle: 'Save gems, treasures, and loot' },
+  
+
 ];
 
 type ChatMsg = { id: string; role: 'user' | 'assistant'; text: string };
 
 // Replace with your Gemini API key (for development only)
-const GEMINI_API_KEY = 'AIzaSyDk6YsYsaEXZyMWJzOIJc5cdXCaoVcZbFw';
+const GEMINI_API_KEY = 'SDKJDALKSJDALSKJDLASKJDLAKSDJ';
 
 export default function LessonsScreen() {
   const router = useRouter();
@@ -166,19 +169,19 @@ export default function LessonsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#8bd7ecff' },
+  container: { flex: 1, backgroundColor: '#a9ecffff' },
   headerImage: { width: '100%', height: 140 },
-  list: { padding: 16 },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f6f8fa', padding: 12, borderRadius: 8, marginBottom: 12 },
+  list: { padding: 16, paddingTop: 10 },
+  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffffff', padding: 20, borderRadius: 20, marginBottom: 20, marginTop:0 },
   cardPressed: { opacity: 0.85 },
-  thumbnail: { width: 56, height: 56, borderRadius: 200, marginRight: 12 },
+  thumbnail: { width: 56, height: 56, borderRadius: 400, marginRight: 12 },
   cardLeft: { marginRight: 8 },
   cardBody: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: '600', marginBottom: 2 },
   cardSubtitle: { fontSize: 13, color: '#6b7280' },
   cardRight: { marginLeft: 8 },
   duration: { fontSize: 13, color: '#374151' },
-  chatButton: { position: 'absolute', right: 16, bottom: 24, backgroundColor: '#2563eb', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 24, elevation: 3 },
+  chatButton: { position: 'absolute', right: 16, bottom: 24, backgroundColor: '#4a83ffff', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 24, elevation: 3 },
   chatButtonText: { color: '#fff', fontWeight: '600' },
   chatContainer: { flex: 1, padding: 12 },
   chatHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
