@@ -1,30 +1,35 @@
 import React from 'react';
-import { View, Animated, StyleSheet } from 'react-native';
+import { Image, View, StyleSheet } from 'react-native';
 
-interface DragonBlobProps {
-  xp: number;
-}
+export default function Dragon({ dragonState }: { dragonState: 'idle' | 'eating' | 'happy' }) {
+  let dragonImage;
 
-export default function DragonBlob({ xp }: DragonBlobProps) {
-  const scale = 1 + xp / 200; // subtle growth as XP increases
+  switch (dragonState) {
+    case 'eating':
+      dragonImage = require('@/assets/images/dragon/dragon-eating.png');
+      break;
+    case 'happy':
+      dragonImage = require('@/assets/images/dragon/dragon-happy.png');
+      break;
+    default:
+      dragonImage = require('@/assets/images/dragon/dragon-idle.png');
+      break;
+  }
 
   return (
-    <Animated.View
-      style={[
-        styles.dragon,
-        { transform: [{ scale }] },
-      ]}
-    />
+    <View style={styles.container}>
+      <Image source={dragonImage} style={styles.dragonImage} resizeMode="contain" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  dragon: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: '#4b9cd3',
-    borderWidth: 4,
-    borderColor: '#2c6f91',
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dragonImage: {
+    width: 250,
+    height: 250,
   },
 });
